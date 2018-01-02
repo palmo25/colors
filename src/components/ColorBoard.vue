@@ -4,6 +4,7 @@
    <div id="get-color">
    <button @click="getColor" class="btn">Get color</button> 
    </div><!--end of button -->
+   <p>Points: {{points}}</p>
    <div id="start-game"
         v-if="gameOverMsg === true"
     >
@@ -32,8 +33,7 @@
             </div>
            
             <div class="card-action">
-              <a href="#">This is a link</a>
-              <a href="#">This is a link</a>
+              <a @click="submitAnswer" href="#">Submit answer</a>
             </div>
           </div>
         </div>
@@ -48,15 +48,17 @@ import db from './firebaseInit'
          return{
             colors: [],
             color: null,
+            colorT: null,
             gameOverMsg: false,
-            answer: null
+            answer: null,
+            points: 0
          }
         },
         created(){
             db.collection('colors_EN').get().then(querySnapshot => {
              querySnapshot.forEach(doc =>{
-                 console.log(doc.data().color_EN);
-                 const data = doc.data().color_EN;
+                 console.log(doc.data());
+                 const data = doc.data();
                  this.colors.push(data)
              })
             }) 
@@ -66,7 +68,10 @@ import db from './firebaseInit'
                 if(this.colors.length > 0){
                 let color = this.colors[Math.floor(Math.random()*this.colors.length)]
                 console.log(color)
-                this.color = color;
+                console.log(color["color_EN"])
+                console.log(color["color_IT"])
+                this.color = color["color_EN"];
+                this.colorT = color["color_IT"]
                 const index = this.colors.indexOf(color)
                 this.colors.splice(index,1)
                 }else{
@@ -83,6 +88,13 @@ import db from './firebaseInit'
              })
             }) 
                 this.gameOverMsg = false
+            },
+            submitAnswer(){
+                if (this.answer == this.colorT){
+                    this.points ++
+                    this.answer = ""
+                }
+
             }
         }
        
